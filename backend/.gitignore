@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env           # ⚠️ هذا الأهم: لا يرفع ملف البيئة الحقيقي
+*.log
+.DS_Store
+
+/generated/prisma

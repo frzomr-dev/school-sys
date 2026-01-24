@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  name              String?
+  phone             String?
+  isActive          Boolean   @default(true) @map("is_active")
+  isStudent         Boolean   @default(false) @map("is_student")
+  isTeacher         Boolean   @default(false) @map("is_teacher")
+  isAdmin           Boolean   @default(false) @map("is_admin")
+  lastLogin         DateTime? @map("last_login")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  studentProfile    Student?
+
+  @@map("users")
+}
+
+model Student {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique @map("user_id")
+  studentCode       String   @unique @map("student_code")
+  dateOfBirth       DateTime? @map("date_of_birth")
+  gender            String?
+  nationality       String?
+  address           String?
+  enrollmentDate    DateTime @default(now()) @map("enrollment_date")
+  academicStatus    String   @default("active") @map("academic_status")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("students")
+}
