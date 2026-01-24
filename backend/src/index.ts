@@ -1,6 +1,9 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import cors from 'cors';
+
+// تعريف الأنواع
+import type { Request, Response } from 'express';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -24,7 +27,7 @@ app.get('/health', async (req: Request, res: Response) => {
     res.status(500).json({ 
       status: 'unhealthy',
       database: 'disconnected',
-      error: error.message 
+      error: (error as Error).message 
     });
   }
 });
