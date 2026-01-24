@@ -76,7 +76,7 @@ app.post('/users', async (req: Request, res: Response) => {
 
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ error: (error as Error).message });
   }
 });
 
