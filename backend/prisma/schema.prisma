@@ -27,19 +27,57 @@ model User {
 }
 
 model Student {
-  id                Int      @id @default(autoincrement())
-  userId            Int      @unique @map("user_id")
-  studentCode       String   @unique @map("student_code")
-  dateOfBirth       DateTime? @map("date_of_birth")
+  id                Int           @id @default(autoincrement())
+  userId            Int           @unique @map("user_id")
+  studentCode       String        @unique @map("student_code")
+  dateOfBirth       DateTime?     @map("date_of_birth")
   gender            String?
   nationality       String?
   address           String?
-  enrollmentDate    DateTime @default(now()) @map("enrollment_date")
-  academicStatus    String   @default("active") @map("academic_status")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
+  enrollmentDate    DateTime      @default(now()) @map("enrollment_date")
+  academicStatus    String        @default("active") @map("academic_status")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
 
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  // العلاقات
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments       Enrollment[]  
+  
   @@map("students")
+}
+
+// نموذج المادة الدراسية
+model Course {
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(255)      // اسم المادة
+  code        String      @unique @db.VarChar(50) // كود المادة (مثل: MATH101)
+  description String?     @db.Text             // وصف المادة
+  credits     Int         @default(3)          // عدد الساعات المعتمدة
+  isActive    Boolean     @default(true) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // العلاقات
+  enrollments Enrollment[]
+
+  @@map("courses")
+}
+
+// نموذج تسجيل الطالب في المادة
+model Enrollment {
+  id        Int      @id @default(autoincrement())
+  studentId Int      @map("student_id")
+  courseId  Int      @map("course_id")
+  grade     String?  @db.VarChar(2)           // الدرجة (A, B, C, ...)
+  status    String   @default("active") @db.VarChar(20) // active, completed, dropped
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  completedAt DateTime? @map("completed_at")
+
+  // العلاقات
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  // تأكد أن الطالب لا يسجل في نفس المادة أكثر من مرة
+  @@unique([studentId, courseId], name: "enrollment_unique")
+  @@map("enrollments")
 }
