@@ -46,6 +46,33 @@ app.get('/users', async (req: Request, res: Response) => {
   }
 });
 
+// جلب طالب محدد مع مواده
+app.get('/students/:id', async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(req.params.id as string);
+    const student = await prisma.student.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        enrollments: {
+          include: {
+            course: true
+          }
+        }
+      }
+    });
+    
+    if (!student) {
+      res.status(404).json({ error: 'الطالب غير موجود' });
+      return;
+    }
+    
+    res.json(student);
+  } catch (error) {
+    res.status(500).json({ error: 'فشل في جلب بيانات الطالب' });
+  }
+});
+
 // 3. إنشاء مستخدم جديد (مع طالب إذا كان طالباً)
 app.post('/users', async (req: Request, res: Response) => {
   try {
